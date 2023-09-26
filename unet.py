@@ -172,60 +172,6 @@ class UNet(nn.Module):
 
 
 
-class UNet2(nn.Module):
-    def __init__(self, img_ch=1, output_ch=1):
-        super(UNet2, self).__init__()
-        n1 = 64
-        filters = [n1, n1 * 2, n1 * 4, n1 * 8]  # [64, 128, 256, 512]
-
-        self.Encoder_Zh = Encoder(img_ch)
-        self.Encoder_Zdr = Encoder(img_ch)
-
-        self.SE_block = csSE(512*2)
-
-        self.Up4 = up_conv(filters[3]*2, filters[2])
-        self.Up_conv4 = conv_block(filters[2]*3, filters[2])
-
-        self.Up3 = up_conv(filters[2], filters[1])
-        self.Up_conv3 = conv_block(filters[1]*3, filters[1])
-
-        self.Up2 = up_conv(filters[1], filters[0])
-        self.Up_conv2 = conv_block(filters[0]*3, filters[0])
-
-        self.Conv = nn.Conv2d(filters[0], output_ch, kernel_size=1, stride=1, padding=0)
-
-        self.active = torch.nn.Sigmoid()
-
-
-    def forward(self, Zh, Zdr):
-        '''
-            Zh, Zdr, Kdp: [batchsize, 10, 256, 256]
-        '''
-
-        encoder_Zh = self.Encoder_Zh(Zh)
-        encoder_Zdr = self.Encoder_Zdr(Zdr)
-
-        e4 = torch.concat((encoder_Zdr[3], encoder_Zh[3]), dim=1)    # [bsz, 512*2, 32, 32]
-        e4 = self.SE_block(e4)
-
-        d4 = self.Up4(e4)    # [bsz, 256, 64, 64]   
-        d4 = torch.cat((encoder_Zdr[2], encoder_Zh[2], d4), dim=1)  # [bsz, 256*3, 64, 64]
-        d4 = self.Up_conv4(d4)      # [bsz,256,64,64]
-
-        d3 = self.Up3(d4)    # [bsz, 128, 128, 128]
-        d3 = torch.cat((encoder_Zdr[1],  encoder_Zh[1], d3), dim=1)  # [bsz, 128*3, 128,128]
-        d3 = self.Up_conv3(d3)      # [bsz,128,128,128]
-
-        d2 = self.Up2(d3)    # [bsz, 64, 256, 256]
-        d2 = torch.cat((encoder_Zdr[0], encoder_Zh[0], d2), dim=1)  # [bsz, 64*3, 256, 256]
-        d2 = self.Up_conv2(d2)      # [bsz,64,256,256]
-
-        out = self.Conv(d2)         # [bsz,1,256,256]
-
-        out = self.active(out)      # [0,1]
-
-        return out
-
 
 
 if __name__=='__main__':
@@ -236,9 +182,3 @@ if __name__=='__main__':
         input_tensor3 = torch.rand((1, 10, 256, 256))
         output_tensor = net(input_tensor1, input_tensor2, input_tensor3)
         print(output_tensor.shape)      # torch.Size([1, 10, 256, 256])
-    if True:
-        net = UNet2(img_ch=1, output_ch=1)
-        input_tensor1 = torch.rand((1, 1, 256, 256))
-        input_tensor2 = torch.rand((1, 1, 256, 256))
-        output_tensor = net(input_tensor1, input_tensor2)
-        print(output_tensor.shape)      # torch.Size([1, 1, 256, 256])
