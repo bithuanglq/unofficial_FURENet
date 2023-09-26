@@ -1,9 +1,7 @@
 # unofficial_FURENet
-**An unofficial implement of FURENet in Geophysical Research Letters paper: [Nowcasting of convective development by incorporating polarimetric radar variables into a deep‐learning model](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2021GL095302)**
+_An unofficial implement of FURENet in Geophysical Research Letters paper:_  
 
-&nbsp;
-&nbsp;
-&nbsp;
+**[Nowcasting of convective development by incorporating polarimetric radar variables into a deep‐learning model](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2021GL095302)**
 
-
-  &nbsp; &nbsp;  Encode each input variable separately, then merge the outputs of the encoder. After passing through the Squeeze and Extraction module, it is then decoded to obtain predictions containing spatial and temporal information.
+&nbsp;   
+Encode each input variable separately, then merge the outputs of the encoder. After passing through the Squeeze and Extraction module, it is then decoded to obtain predictions containing spatial and temporal information.
